@@ -1,5 +1,5 @@
 CubedSphere: Cubed-Sphere data processing with xarray 
-======================================
+=====================================================
 
 **This package is still under initial development, not ready for public use.**
 
@@ -38,7 +38,7 @@ Quick Start
 See the `example notebook <https://github.com/JiaweiZhuang/cubedsphere/blob/master/example_notebooks/basic_design.ipynb>`_.
 
 License
----------------
+-------
 This code is freely available under the MIT license.
 See the accompanying LICENSE file.
 

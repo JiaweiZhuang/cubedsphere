@@ -1,4 +1,8 @@
 import numpy as np
+from scipy.optimize import minimize_scale
+
+from pysal.cg.sphere import geointerpolate, arcdist
+
 import warnings
 
 
@@ -114,3 +118,79 @@ def meridional_mean(dr, dlon=5):
     meri_mean = _bin_phydim(dr, dim_name, bin_bound, bin_center, stacked_dim_name)
 
     return meri_mean
+
+
+def gaussian_bell(xs, ys, xc=0., yc=0., xsigma=1., ysigma=1.):
+    """ Compute a 2D Gaussian with asymmetric standard deviations and
+    arbitrary center.
+
+    .. math::
+
+        Z = \exp{\left[\frac{(x - x_c)^2}{2\sigma_x} + \frac{(y - y_c)^2}{2\sigma_y}\right]}
+
+    Parameters
+    ----------
+    {x,y}s : array-like of floats
+        x- and y-coordinates where the function should be calculated. Can be
+        arbitrary shape as long as they both match.
+    {x,y}c : float
+        coordinates corresponding to center of bell.
+    {x,y}sigma : float
+        width/standard deviation (σ) of distribution in each coordinate direction.
+
+    Returns
+    -------
+    Z evaluated at the given coordinates.
+
+    """
+    expon = ((xs - xc)**2)/2./xsigma + ((ys - yc)**2)/2./ysigma
+    return np.exp(-expon)
+
+def multi_wave(lons, lats, nx=2, ny=1):
+    """ Compute an arbitrary zonally/meridionally varying wave.
+
+    .. math::
+
+        Z = \cos{\frac{n_x \lambda}{T_\lambda}} + 2\frac{\phi - \bar{\phi}}{\mathrm{std}(\phi)}
+
+    Parameters
+    ----------
+    lons, lats : array-like of floats
+        Longitude/latitude coordinate at which to evaluate wave equation
+    nx, ny : int
+        Wavenumber in zonal and meridional direction
+
+    """
+    Tx = 360. / 2. * np.pi
+    Ty = 180. / 2. * np.pi
+    # return np.sin(nx*lons/Tx + np.cos(lats/Ty)) #+ np.cos(ny*lats/Ty)
+    return np.cos(nx*lons/Tx) + 2*(lats - np.mean(lats))/lats.std()
+
+
+def calc_ϕ_on_great_circle(λp, pt1, pt2, verbose=False):
+    """ Calculate latitude corresponding to a given longitude on
+    a great circle that passes through two given points.
+
+    Parameters
+    ----------
+    λp : float
+        Longitude to inspect great circle, in degrees
+    pt1, pt2 : tuples of (float, float)
+        Longitude/latitude of points through which to draw a great
+        circle. Coordinates should be passed in degrees
+    verbose : logical (default = False)
+        Print the result before returning
+
+    Returns
+    -------
+    latitude corresponding to λp along the desired great circle, in
+    degrees
+
+    """
+    # distance = arcdist(pt0, pt1, 1.)
+    diff = lambda x: np.abs(λp - geointerpolate(pt1, pt2, x)[0])
+    result = minimize_scalar(diff, bounds=[0., 1.], method='bounded')
+    if verbose:
+        print(result)
+    λ, ϕ = geointerpolate(pt1, pt2, result.x)
+    return ϕ
