@@ -1,4 +1,8 @@
 import numpy as np
+from scipy.optimize import minimize_scale
+
+from pysal.cg.sphere import geointerpolate, arcdist
+
 import warnings
 
 
@@ -161,3 +165,32 @@ def multi_wave(lons, lats, nx=2, ny=1):
     Ty = 180. / 2. * np.pi
     # return np.sin(nx*lons/Tx + np.cos(lats/Ty)) #+ np.cos(ny*lats/Ty)
     return np.cos(nx*lons/Tx) + 2*(lats - np.mean(lats))/lats.std()
+
+
+def calc_ϕ_on_great_circle(λp, pt1, pt2, verbose=False):
+    """ Calculate latitude corresponding to a given longitude on
+    a great circle that passes through two given points.
+
+    Parameters
+    ----------
+    λp : float
+        Longitude to inspect great circle, in degrees
+    pt1, pt2 : tuples of (float, float)
+        Longitude/latitude of points through which to draw a great
+        circle. Coordinates should be passed in degrees
+    verbose : logical (default = False)
+        Print the result before returning
+
+    Returns
+    -------
+    latitude corresponding to λp along the desired great circle, in
+    degrees
+
+    """
+    # distance = arcdist(pt0, pt1, 1.)
+    diff = lambda x: np.abs(λp - geointerpolate(pt1, pt2, x)[0])
+    result = minimize_scalar(diff, bounds=[0., 1.], method='bounded')
+    if verbose:
+        print(result)
+    λ, ϕ = geointerpolate(pt1, pt2, result.x)
+    return ϕ
