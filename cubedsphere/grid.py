@@ -229,9 +229,6 @@ class CSGrid(object):
         ## CLEANUP GRID
         #######################################################################
 
-        if self.offset is not None:
-            lon_edge = lon_edge - self.offset
-
         for i, j, f in product(range(c+1), range(c+1), range(6)):
             new_lon = lon_edge[i, j, f]
             if new_lon < 0:
@@ -291,6 +288,10 @@ class CSGrid(object):
 
         lon_ctr_deg = np.rad2deg(lon_ctr)
         lat_ctr_deg = np.rad2deg(lat_ctr)
+
+        if self.offset is not None:
+            lon_edge_deg += self.offset
+            lon_ctr_deg += self.offset
 
         #######################################################################
         ## CACHE
