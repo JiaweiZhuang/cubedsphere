@@ -1,7 +1,6 @@
 import numpy as np
-from scipy.optimize import minimize_scale
-
-from pysal.cg.sphere import geointerpolate, arcdist
+#from scipy.optimize import minimize_scalar
+#from pysal.cg.sphere import geointerpolate, arcdist
 
 import warnings
 
