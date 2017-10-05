@@ -97,13 +97,13 @@ class CSGrid(object):
         pp = np.zeros([3, c+1, c+1])
 
         # Set the four corners
-        print("CORNERS")
+        # print("CORNERS")
         for i, j in product([0, -1], [0, -1]):
             # print(i, j)
             pp[:, i, j] = latlon_to_cartesian(lambda_rad[i, j], theta_rad[i, j])
 
         # Map the edges on the sphere back to the cube. Note that all intersections are at x = -rsq3
-        print("EDGES")
+        # print("EDGES")
         for ij in range(1, c+1):
             # print(ij)
             pp[:, 0, ij] = latlon_to_cartesian(lambda_rad[0, ij], theta_rad[0, ij])
@@ -116,7 +116,7 @@ class CSGrid(object):
 
         # # Map interiors
         pp[0, :, :] = -INV_SQRT_3
-        print("INTERIOR")
+        # print("INTERIOR")
         for i in range(1, c+1):
             for j in range(1, c+1):
                 # Copy y-z face of the cube along j=1
