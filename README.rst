@@ -1,8 +1,6 @@
 CubedSphere: Cubed-Sphere data processing with xarray 
 =====================================================
 
-**This package is still under initial development, not ready for public use.**
-
 **CubedSphere** is an xarray_-based package for processing the 
 `Cubed-Sphere <http://acmg.seas.harvard.edu/geos/cubed_sphere.html>`_ data from  
 `GFDL-FV3 <https://www.gfdl.noaa.gov/fv3/>`_ and  
