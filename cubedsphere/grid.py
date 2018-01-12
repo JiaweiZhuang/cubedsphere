@@ -5,6 +5,40 @@ import numpy as np
 INV_SQRT_3 = 1.0 / np.sqrt(3.0)
 ASIN_INV_SQRT_3 = np.arcsin(INV_SQRT_3)
 
+
+def csgrid_GMAO(res):
+    """
+    Return cubedsphere coordinates with GMAO face orientation
+
+    Parameters
+    ----------
+    res : cubed-sphere Resolution
+    """
+
+    CS = CSGrid(res, offset=-10)
+
+    lon = CS.lon_center.transpose(2, 0, 1)
+    lon_b = CS.lon_edge.transpose(2, 0, 1)
+    lat = CS.lat_center.transpose(2, 0, 1)
+    lat_b = CS.lat_edge.transpose(2, 0, 1)
+
+    lon[lon < 0] += 360
+    lon_b[lon_b < 0] += 360
+
+    for a in [lon, lon_b, lat, lat_b]:
+
+        for tile in [0, 1, 3, 4]:
+            a[tile] = a[tile].T
+        for tile in [3, 4]:
+            a[tile] = np.flip(a[tile], 1)
+        for tile in [3, 4, 2, 5]:
+            a[tile] = np.flip(a[tile], 0)
+
+        a[2], a[5] = a[5].copy(), a[2].copy()  # swap north&south pole
+
+    return {'lon': lon, 'lat': lat, 'lon_b': lon_b, 'lat_b': lat_b}
+
+
 class CSGrid(object):
     """Generator for cubed-sphere grid geometries.
 
@@ -97,13 +131,13 @@ class CSGrid(object):
         pp = np.zeros([3, c+1, c+1])
 
         # Set the four corners
-        print("CORNERS")
+        # print("CORNERS")
         for i, j in product([0, -1], [0, -1]):
             # print(i, j)
             pp[:, i, j] = latlon_to_cartesian(lambda_rad[i, j], theta_rad[i, j])
 
         # Map the edges on the sphere back to the cube. Note that all intersections are at x = -rsq3
-        print("EDGES")
+        # print("EDGES")
         for ij in range(1, c+1):
             # print(ij)
             pp[:, 0, ij] = latlon_to_cartesian(lambda_rad[0, ij], theta_rad[0, ij])
@@ -116,7 +150,7 @@ class CSGrid(object):
 
         # # Map interiors
         pp[0, :, :] = -INV_SQRT_3
-        print("INTERIOR")
+        # print("INTERIOR")
         for i in range(1, c+1):
             for j in range(1, c+1):
                 # Copy y-z face of the cube along j=1
