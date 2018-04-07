@@ -193,3 +193,13 @@ def calc_ϕ_on_great_circle(λp, pt1, pt2, verbose=False):
         print(result)
     λ, ϕ = geointerpolate(pt1, pt2, result.x)
     return ϕ
+
+
+def shift_lons(lons):
+    """ Shift longitudes from (0, 360) to (-180, 180) """
+    new_lons = np.empty_like(lons)
+    mask = lons > 180
+    new_lons[mask] = -(360. - lons[mask])
+    new_lons[~mask] = lons[~mask]
+    lons = new_lons.copy()
+    return lons
